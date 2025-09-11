@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import './App.css';
 
 const App = () => {
@@ -11,6 +12,8 @@ const App = () => {
 };
 
 function Form() {
+  const form = useRef(null);
+
   const click = (event) => {
     console.log('this was a click');
     const myForm = event.view.document.getElementById('myForm');
@@ -21,11 +24,11 @@ function Form() {
 
   const submit = (event) => {
     event.preventDefault();
-    console.log('Event:', event);
+    console.log(form.current === event.target);
   }
 
   return (
-    <form className='form' id='myForm' onSubmit={submit}>
+    <form ref={form} className='form' id='myForm' onSubmit={submit}>
       <input id='sometext' name='sometext' type='text' placeholder='some text'></input>
       <button aria-label='click' type='button' onClick={click}>
         <span>Click</span>
