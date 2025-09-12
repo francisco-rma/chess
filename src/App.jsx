@@ -15,11 +15,10 @@ function Form() {
   const form = useRef(null);
 
   const click = (event) => {
-    console.log('this was a click');
-    const myForm = event.view.document.getElementById('myForm');
-    console.log('this is my form:', myForm);
-    const formData = new FormData(myForm);
-    console.log('this is my form data:', formData);
+    const formData = new FormData(form.current);
+    for (let [key, value] of formData.entries()) {
+      console.log(`${key}: ${value}`);
+    }
   }
 
   const submit = (event) => {
