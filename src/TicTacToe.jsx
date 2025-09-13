@@ -34,7 +34,9 @@ function Board({ xIsNext, squares, onPlay }) {
 
     return (
         <>
-            <div className="status">{status}</div>
+            <div className="status">
+                {status}
+            </div>
             <div className="boardRow">
                 <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
                 <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
@@ -51,14 +53,6 @@ function Board({ xIsNext, squares, onPlay }) {
                 <Square value={squares[8]} onSquareClick={() => handleClick(8)} />
             </div>
         </>
-    )
-}
-
-function TicTacToe() {
-    return (
-        <div>
-            This is the Tic Tac Toe container.
-        </div>
     )
 }
 
@@ -87,20 +81,10 @@ function calculateWinner(squares) {
 
 export default function TicTacToe() {
     const [history, setHistory] = useState([Array(9).fill(null)])
-    console.log(history)
     const [currentMove, setcurrentMove] = useState(0)
+
     const xIsNext = currentMove % 2 === 0
     const currentSquares = history[currentMove]
-
-    function handlePlay(nextSquares) {
-        const nextHistory = [...history.slice(0, currentMove + 1), nextSquares]
-        setHistory(nextHistory)
-        setcurrentMove(nextHistory.length - 1)
-    }
-
-    function jumpTo(nextMove) {
-        setcurrentMove(nextMove)
-    }
 
     const moves = history.map((squares, move) => {
         let description
@@ -116,12 +100,30 @@ export default function TicTacToe() {
         )
     })
 
+    function handlePlay(nextSquares) {
+        const nextHistory = [...history.slice(0, currentMove + 1), nextSquares]
+        setHistory(nextHistory)
+        setcurrentMove(nextHistory.length - 1)
+    }
+
+    function jumpTo(nextMove) {
+        setcurrentMove(nextMove)
+    }
+
+    function resetGame() {
+        setHistory([Array(9).fill(null)])
+        setcurrentMove(0)
+        xIsNext = currentMove % 2 === 0
+        currentSquares = history[currentMove]
+    }
+
     return (
         <div className="game">
             <div className="game-board">
                 <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
             </div>
             <div className="game-info">
+                <button className="game-reset" onClick={resetGame}>Reset Game</button>
                 <ol>{moves}</ol>
             </div>
         </div>
