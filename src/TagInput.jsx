@@ -50,7 +50,7 @@ function TagInput() {
           type='text'
           placeholder='tag name'
         ></input>
-        <button className='square'>
+        <button>
           <span>Generate tag</span>
         </button>
       </form>

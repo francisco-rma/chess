@@ -64,3 +64,49 @@ body {
 .tag .close-button:hover {
   background-color: #64748b;
 }
+
+.game {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.game-board {
+    margin-right: 20px;
+}
+
+.status {
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+}
+
+.boardRow:after {
+    clear: both;
+    content: "";
+    display: table;
+}
+
+.square {
+    background: #475569;
+    border: 1px solid #999;
+    float: left;
+    font-size: 24px;
+    font-weight: bold;
+    line-height: 34px;
+    height: 34px;
+    margin-right: -1px;
+    margin-top: -1px;
+    padding: 0;
+    text-align: center;
+    width: 34px;
+    color: #e2e8f0;
+}
+
+.square:focus {
+    outline: none;
+}
+
+.game-info {
+    margin-left: 20px;
+}
