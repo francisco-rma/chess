@@ -3,7 +3,7 @@ import { isValidMove } from './ChessLogic'
 
 function Square({ piece, color, rowIdx, colIdx, onClick, onMouseDown, onMouseUp, isSelected }) {
     return (
-        <div className={`square ${color}-square ${isSelected ? 'selected-square' : ''}`}
+        <div className={`square ${color}-square ${isSelected ? 'selected-square' : ''} ${piece ? piece.color === 'white' ? 'white-piece' : 'black-piece' : ''}`}
             onClick={() => onClick?.(rowIdx, colIdx)}>
             {piece ? `${piece.type}` : ''}
         </div>
@@ -46,7 +46,7 @@ function Board() {
             setBoard([...board])
         }
     }
-    
+
     const isSquareSelected = (rowIdx, colIdx) => {
         return selectedSquare && selectedSquare.row === rowIdx && selectedSquare.col === colIdx
     }

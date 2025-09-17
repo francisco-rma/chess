@@ -115,6 +115,14 @@ body {
   background: green;
 }
 
+.white-piece {
+  color: rgb(152, 182, 77);
+}
+
+.black-piece {
+  color: rgb(133, 79, 155);
+}
+
 .games {
   display: flex;
   flex-direction: row;
