@@ -1,12 +1,12 @@
-import { useState } from 'react';
+import { useState } from 'react'
 
-function Square({ piece, color, rowIdx, colIdx, onClick, onMouseDown, onMouseUp }) {
+function Square({ piece, color, rowIdx, colIdx, onClick, onMouseDown, onMouseUp, isSelected }) {
     return (
-        <div className={`square ${color}-square`}
+        <div className={`square ${color}-square ${isSelected ? 'selected-square' : ''}`}
             onClick={() => onClick?.(rowIdx, colIdx)}
             onMouseDown={() => onMouseDown?.(rowIdx, colIdx)}
             onMouseUp={() => onMouseUp?.(rowIdx, colIdx)}>
-            {piece ? `${piece.type}` : ''}
+            {piece ? `${piece.type[0]}` : ''}
         </div>
     )
 }
@@ -21,27 +21,30 @@ function Board() {
         [null, null, null, null, null, null, null, null],
         [{ type: 'pawn', color: 'black' }, { type: 'pawn', color: 'black' }, { type: 'pawn', color: 'black' }, { type: 'pawn', color: 'black' }, { type: 'pawn', color: 'black' }, { type: 'pawn', color: 'black' }, { type: 'pawn', color: 'black' }, { type: 'pawn', color: 'black' }],
         [{ type: 'rook', color: 'black' }, { type: 'knight', color: 'black' }, { type: 'bishop', color: 'black' }, { type: 'queen', color: 'black' }, { type: 'king', color: 'black' }, { type: 'bishop', color: 'black' }, { type: 'knight', color: 'black' }, { type: 'rook', color: 'black' }],
-    ];
+    ]
 
-    const boardSize = 8;
-    const [board, setBoard] = useState(initialBoard);
+    const boardSize = 8
+    const [board, setBoard] = useState(initialBoard)
     console.log('board: ', board)
 
-    const [selectedSquare, setSelectedSquare] = useState(null);
+    const [selectedSquare, setSelectedSquare] = useState(null)
+
     const onClick = (rowIdx, colIdx) => {
         console.log(`Click at (${rowIdx},${colIdx}):${board[rowIdx][colIdx]} `)
-        if (!board[rowIdx][colIdx])
-            return;
-
         if (selectedSquare) {
             const target = { row: rowIdx, col: colIdx }
-            const isValid = isValidMove(selectedSquare, target, board);
+            const isValid = isValidMove(selectedSquare, target, board)
             console.log('isValid: ', isValid)
             if (isValid) {
+                board[rowIdx][colIdx] = board[selectedSquare.row][selectedSquare.col]
+                board[selectedSquare.row][selectedSquare.col] = null
+                setBoard([...board])
             }
+            setSelectedSquare(null)
         }
         else {
             setSelectedSquare({ row: rowIdx, col: colIdx })
+            setBoard([...board])
         }
     }
     const onMouseDown = (rowIdx, colIdx) => {
@@ -49,6 +52,9 @@ function Board() {
     }
     const onMouseUp = (rowIdx, colIdx) => {
         console.log('MouseUp')
+    }
+    const isSquareSelected = (rowIdx, colIdx) => {
+        return selectedSquare && selectedSquare.row === rowIdx && selectedSquare.col === colIdx
     }
 
     return (
@@ -64,6 +70,7 @@ function Board() {
                             color={(idx + colIdx) % 2 === 0 ? 'white' : 'black'}
                             rowIdx={idx}
                             colIdx={colIdx}
+                            isSelected={isSquareSelected(idx, colIdx)}
                             key={idx * boardSize + colIdx} />
                     )
                 })
@@ -71,63 +78,84 @@ function Board() {
         </div>
     )
 }
-function isValidMove(source, target, board) {
+function isValidMove(sourceCoordinates, targetCoordinates, board) {
+    console.log('source: ', sourceCoordinates)
+    console.log('target: ', targetCoordinates)
+    console.log('board: ', board)
     // Out of bounds
-    if (!(0 <= source.row < 8) ||
-        !(0 <= source.col < 8) ||
-        !(0 <= target.row < 8) ||
-        !(0 <= target.col < 8)) {
-        return false;
+    if (!(0 <= sourceCoordinates.row < 8) ||
+        !(0 <= sourceCoordinates.col < 8) ||
+        !(0 <= targetCoordinates.row < 8) ||
+        !(0 <= targetCoordinates.col < 8)) {
+        return false
     }
 
     // No movement
-    if (source.row === target.row && source.col === target.col) {
-        return false;
+    if (sourceCoordinates.row === targetCoordinates.row && sourceCoordinates.col === targetCoordinates.col) {
+        return false
     }
 
-    console.log(`board[${source.row}][${source.col}]: `, board[source.row][source.col])
-    let piece = board[source.row][source.col];
+    console.log(`board[${sourceCoordinates.row}][${sourceCoordinates.col}]: `, board[sourceCoordinates.row][sourceCoordinates.col])
+    console.log(`board[${targetCoordinates.row}][${targetCoordinates.col}]: `, board[targetCoordinates.row][targetCoordinates.col])
+    let sourcePiece = board[sourceCoordinates.row][sourceCoordinates.col]
+    let targetPiece = board[targetCoordinates.row][targetCoordinates.col]
 
     // No piece to move
-    if (!piece) {
-        console.log('No piece to move');
-        return false;
+    if (!sourcePiece) {
+        console.log('No piece to move')
+        return false
     }
-
-    target = board[target.row][target.col];
 
     // Can't capture own piece
-    if (target && target.color === piece.color) {
-        return false;
+    if (targetPiece && targetPiece.color === sourcePiece.color) {
+        return false
     }
 
-    const rowShift = target.row - source.row;
-    const colShift = target.col - source.col;
+    const rowShift = targetCoordinates.row - sourceCoordinates.row
+    const colShift = targetCoordinates.col - sourceCoordinates.col
 
-    switch (piece.type) {
+    switch (sourcePiece.type) {
         case 'pawn':
-            if (rowShift > 1 || colShift > 1) return false; // Pawns can only move one square forward or capture diagonally
-            if ((colShift === 0 && target) || (colShift === 1 && !target)) return false; // Can't move forward into an occupied square
-            if (piece.color === 'white') return rowShift < 0; // White pawns can't move backward
-            if (piece.color === 'black') return rowShift > 0; // Black pawns can't move forward
-            break;
+            if (Math.abs(rowShift) > 1 || Math.abs(colShift) > 1) {
+                return false
+            }
+            if ((colShift === 0 && targetPiece) || (colShift === 1 && !targetPiece)) {
+                return false
+            }
+            if (sourcePiece.color === 'white') {
+                return rowShift > 0
+            }
+            if (sourcePiece.color === 'black') {
+                return rowShift < 0
+            }
+            break
         case 'rook':
-            if (rowShift !== 0 && colShift !== 0) return false; // Rooks move in straight lines
-            if (target) {
-                const isRowShift = rowShift > 0
-                let start = (isRowShift ? source.row : source.col) + 1;
-                let end = isRowShift ? target.row : target.col;
-                if (start > end) [start, end] = [end, start];
+            if (rowShift !== 0 && colShift !== 0)
+                return false
 
-                for (let i = start; i < end; i++) {
-                    if ((isRowShift && board[i][source.col] !== null) ||
-                        !isRowShift && board[source.row][i] !== null) {
-                        return false
-                    };
+            if (targetPiece && targetPiece.color === sourcePiece.color)
+                return false
+
+            const isRowShift = Math.abs(rowShift) > 0
+            let start = (isRowShift ? sourceCoordinates.row : sourceCoordinates.col)
+            let end = isRowShift ? targetCoordinates.row : targetCoordinates.col
+            const padding = start > end ? -1 : 1
+            start = start + padding
+            console.log('start ', start)
+            console.log('end ', end)
+            console.log('padding ', padding)
+            
+            for (let i = start; i < end; padding == -1 ? i-- : i++) {
+                console.log(i)
+                console.log(isRowShift ? board[i][sourceCoordinates.col] : board[sourceCoordinates.row][i])
+                if ((isRowShift && board[i][sourceCoordinates.col]) ||
+                    !isRowShift && board[sourceCoordinates.row][i]) {
+                    return false
                 }
             }
             break
     }
+    return true
 }
 
 export default function Chess() {
