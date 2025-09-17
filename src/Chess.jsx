@@ -4,24 +4,22 @@ import { isValidMove } from './ChessLogic'
 function Square({ piece, color, rowIdx, colIdx, onClick, onMouseDown, onMouseUp, isSelected }) {
     return (
         <div className={`square ${color}-square ${isSelected ? 'selected-square' : ''}`}
-            onClick={() => onClick?.(rowIdx, colIdx)}
-            onMouseDown={() => onMouseDown?.(rowIdx, colIdx)}
-            onMouseUp={() => onMouseUp?.(rowIdx, colIdx)}>
-            {piece ? `${piece.type[0]}` : ''}
+            onClick={() => onClick?.(rowIdx, colIdx)}>
+            {piece ? `${piece.type}` : ''}
         </div>
     )
 }
 
 function Board() {
     const initialBoard = [
-        [{ type: 'rook', color: 'white' }, { type: 'knight', color: 'white' }, { type: 'bishop', color: 'white' }, { type: 'queen', color: 'white' }, { type: 'king', color: 'white' }, { type: 'bishop', color: 'white' }, { type: 'knight', color: 'white' }, { type: 'rook', color: 'white' }],
-        [{ type: 'pawn', color: 'white' }, { type: 'pawn', color: 'white' }, { type: 'pawn', color: 'white' }, { type: 'pawn', color: 'white' }, { type: 'pawn', color: 'white' }, { type: 'pawn', color: 'white' }, { type: 'pawn', color: 'white' }, { type: 'pawn', color: 'white' }],
+        [{ type: '♖', color: 'white' }, { type: '♘', color: 'white' }, { type: '♗', color: 'white' }, { type: '♕', color: 'white' }, { type: '♔', color: 'white' }, { type: '♗', color: 'white' }, { type: '♘', color: 'white' }, { type: '♖', color: 'white' }],
+        [{ type: '♙', color: 'white' }, { type: '♙', color: 'white' }, { type: '♙', color: 'white' }, { type: '♙', color: 'white' }, { type: '♙', color: 'white' }, { type: '♙', color: 'white' }, { type: '♙', color: 'white' }, { type: '♙', color: 'white' }],
         [null, null, null, null, null, null, null, null],
         [null, null, null, null, null, null, null, null],
         [null, null, null, null, null, null, null, null],
         [null, null, null, null, null, null, null, null],
-        [{ type: 'pawn', color: 'black' }, { type: 'pawn', color: 'black' }, { type: 'pawn', color: 'black' }, { type: 'pawn', color: 'black' }, { type: 'pawn', color: 'black' }, { type: 'pawn', color: 'black' }, { type: 'pawn', color: 'black' }, { type: 'pawn', color: 'black' }],
-        [{ type: 'rook', color: 'black' }, { type: 'knight', color: 'black' }, { type: 'bishop', color: 'black' }, { type: 'queen', color: 'black' }, { type: 'king', color: 'black' }, { type: 'bishop', color: 'black' }, { type: 'knight', color: 'black' }, { type: 'rook', color: 'black' }],
+        [{ type: '♟', color: 'black' }, { type: '♟', color: 'black' }, { type: '♟', color: 'black' }, { type: '♟', color: 'black' }, { type: '♟', color: 'black' }, { type: '♟', color: 'black' }, { type: '♟', color: 'black' }, { type: '♟', color: 'black' }],
+        [{ type: '♜', color: 'black' }, { type: '♞', color: 'black' }, { type: '♝', color: 'black' }, { type: '♛', color: 'black' }, { type: '♚', color: 'black' }, { type: '♝', color: 'black' }, { type: '♞', color: 'black' }, { type: '♜', color: 'black' }],
     ]
 
     const boardSize = 8
@@ -48,12 +46,7 @@ function Board() {
             setBoard([...board])
         }
     }
-    const onMouseDown = (rowIdx, colIdx) => {
-        console.log('MouseDown')
-    }
-    const onMouseUp = (rowIdx, colIdx) => {
-        console.log('MouseUp')
-    }
+    
     const isSquareSelected = (rowIdx, colIdx) => {
         return selectedSquare && selectedSquare.row === rowIdx && selectedSquare.col === colIdx
     }
@@ -65,8 +58,6 @@ function Board() {
                     return (
                         <Square
                             onClick={onClick}
-                            onMouseDown={onMouseDown}
-                            onMouseUp={onMouseUp}
                             piece={row[colIdx]}
                             color={(idx + colIdx) % 2 === 0 ? 'white' : 'black'}
                             rowIdx={idx}

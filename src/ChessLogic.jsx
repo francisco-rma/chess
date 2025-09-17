@@ -98,10 +98,10 @@ function isValidKingMove(source, target) {
 
 export function isValidMove(source, target, board, turn) {
     // Out of bounds
-    if (
-        source.row < 0 || source.row > 7 || source.col < 0 || source.col > 7 ||
-        target.row < 0 || target.row > 7 || target.col < 0 || target.col > 7
-    ) {
+    if (!(0 <= source.row <= 7) ||
+        !(0 <= source.col <= 7) ||
+        !(0 <= target.row <= 7) ||
+        !(0 <= target.col <= 7)) {
         return false;
     }
 
@@ -122,25 +122,37 @@ export function isValidMove(source, target, board, turn) {
     if (targetPiece && targetPiece.color === sourcePiece.color) {
         return false;
     }
-    
+
     // No movement
     if (source.row === target.row && source.col === target.col) {
         return false
     }
 
     switch (sourcePiece.type) {
-        case 'pawn':
-            return isValidPawnMove(source, target, board);
-        case 'rook':
-            return isValidRookMove(source, target, board);
-        case 'knight':
-            return isValidKnightMove(source, target, board);
-        case 'bishop':
-            return isValidBishopMove(source, target, board);
-        case 'queen':
-            return isValidQueenMove(source, target, board);
-        case 'king':
-            return isValidKingMove(source, target, board);
+        case '♙':
+        case '♟':
+            return isValidPawnMove(source, target, board)
+
+        case '♖':
+        case '♜':
+            return isValidRookMove(source, target, board)
+
+        case '♘':
+        case '♞':
+            return isValidKnightMove(source, target, board)
+
+        case '♗':
+        case '♝':
+            return isValidBishopMove(source, target, board)
+
+        case '♕':
+        case '♛':
+            return isValidQueenMove(source, target, board)
+
+        case '♔':
+        case '♚':
+            return isValidKingMove(source, target, board)
+
         default:
             return false;
     }
