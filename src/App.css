@@ -95,13 +95,12 @@ body {
   font-weight: bold;
   line-height: 34px;
   height: 34px;
+  width: 34px;
   margin-right: -1px;
   margin-top: -1px;
   padding: 0;
   text-align: center;
-  width: 34px;
-  color: #e2e8f0;
-  
+  color: brown;
 }
 
 .white-square {
@@ -112,10 +111,16 @@ body {
   background: black;
 }
 
+.selected-square {
+  background: green;
+}
+
 .games {
   display: flex;
   flex-direction: row;
+  align-items: center;
   justify-content: space-evenly;
+  border: 1px solid #333;
 }
 
 .square:focus {
@@ -130,8 +135,11 @@ body {
   margin-left: 20px;
 }
 
-
 .chess-board {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  border: 1px solid #333;
   margin-top: 20px;
   font-size: 1.5rem;
 }
