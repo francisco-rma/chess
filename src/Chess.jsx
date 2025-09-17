@@ -26,19 +26,20 @@ function Board() {
 
     const boardSize = 8
     const [board, setBoard] = useState(initialBoard)
-    console.log('board: ', board)
 
+    const [turn, setTurn] = useState('white')
     const [selectedSquare, setSelectedSquare] = useState(null)
 
     const onClick = (rowIdx, colIdx) => {
-        console.log(`(${rowIdx},${colIdx}):${board[rowIdx][colIdx]} `)
+        console.log(`${turn}(${rowIdx},${colIdx}):${board[rowIdx][colIdx]} `)
         if (selectedSquare) {
             const target = { row: rowIdx, col: colIdx }
-            const isValid = isValidMove(selectedSquare, target, board)
+            const isValid = isValidMove(selectedSquare, target, board, turn)
             if (isValid) {
                 board[rowIdx][colIdx] = board[selectedSquare.row][selectedSquare.col]
                 board[selectedSquare.row][selectedSquare.col] = null
                 setBoard([...board])
+                setTurn(turn === 'white' ? 'black' : 'white')
             }
             setSelectedSquare(null)
         }
