@@ -54,7 +54,7 @@ function ControlledForm() {
                     required />
                 <input
                     name='email'
-                    type='text'
+                    type='email'
                     placeholder='email'
                     value={formData.email}
                     onChange={handleChange}
