@@ -10,7 +10,7 @@ function Square({ piece, color, rowIdx, colIdx, onClick, onMouseDown, onMouseUp,
     )
 }
 
-function Board() {
+function Board({ my_color }) {
     const initialBoard = [
         [{ type: '♖', color: 'white' }, { type: '♘', color: 'white' }, { type: '♗', color: 'white' }, { type: '♕', color: 'white' }, { type: '♔', color: 'white' }, { type: '♗', color: 'white' }, { type: '♘', color: 'white' }, { type: '♖', color: 'white' }],
         [{ type: '♙', color: 'white' }, { type: '♙', color: 'white' }, { type: '♙', color: 'white' }, { type: '♙', color: 'white' }, { type: '♙', color: 'white' }, { type: '♙', color: 'white' }, { type: '♙', color: 'white' }, { type: '♙', color: 'white' }],
@@ -28,12 +28,31 @@ function Board() {
     const [turn, setTurn] = useState('white')
     const [selectedSquare, setSelectedSquare] = useState(null)
 
+    const [lastMove, setlastMove] = useState(null)
+
     const onClick = (rowIdx, colIdx) => {
+        if (turn !== my_color) {
+            // console.log('not your turn')
+            // return;
+        }
         console.log(`${turn}(${rowIdx},${colIdx}):${board[rowIdx][colIdx]} `)
         if (selectedSquare) {
             const target = { row: rowIdx, col: colIdx }
-            const isValid = isValidMove(selectedSquare, target, board, turn)
+            const isValid = isValidMove(selectedSquare, target, board, turn, lastMove)
             if (isValid) {
+                // En passant
+                if (lastMove && target) {
+                    const lastPiece = board[lastMove.target.row][lastMove.target.col]
+                    if ((lastPiece.type == '♙' || lastPiece.type == '♟')
+                        && lastMove.source.col === target.col
+                        && lastMove.target.col === target.col
+                        && Math.abs(lastMove.source.row - target.row) === 1
+                        && Math.abs(lastMove.target.row - target.row) === 1
+                    ) {
+                        board[lastMove.target.row][lastMove.target.col] = null
+                    }
+                }
+                setlastMove({ source: selectedSquare, target: target })
                 board[rowIdx][colIdx] = board[selectedSquare.row][selectedSquare.col]
                 board[selectedSquare.row][selectedSquare.col] = null
                 setBoard([...board])
@@ -71,8 +90,10 @@ function Board() {
     )
 }
 
-export default function Chess() {
+export default function Chess({ color }) {
+    console.log('my color is ' + color)
     return (
-        <Board />
+        <Board
+            my_color={color} />
     )
 }

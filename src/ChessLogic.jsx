@@ -1,4 +1,4 @@
-function isValidPawnMove(source, target, board) {
+function isValidPawnMove(source, target, board, lastMove) {
     const sourcePiece = board[source.row][source.col]
     const targetPiece = board[target.row][target.col]
     const rowShift = target.row - source.row
@@ -20,12 +20,29 @@ function isValidPawnMove(source, target, board) {
         }
     }
 
-    // Capture
-    if (colShift === 1 && rowShift === direction && targetPiece) {
-        return true
-    }
+    if (colShift === 1 && rowShift === direction) {
+        // Capture
+        if (targetPiece)
+            return true
+        // En passant
+        console.log('checking en passant')
+        const lastPiece = board[lastMove.target.row][lastMove.target.col]
+        if ((lastPiece.type == '♙' || lastPiece.type == '♟')
+            && lastMove.source.col === target.col
+            && lastMove.target.col === target.col
+            && Math.abs(lastMove.source.row - target.row) === 1
+            && Math.abs(lastMove.target.row - target.row) === 1
+        ) {
+            console.log('en passant')
+            return true
+        }
+        // En passant
+        if (colShift === 1 && rowShift === direction && targetPiece) {
+            return true
+        }
 
-    return false
+        return false
+    }
 }
 
 function isValidRookMove(source, target, board) {
@@ -96,7 +113,8 @@ function isValidKingMove(source, target) {
     return rowShift <= 1 && colShift <= 1
 }
 
-export function isValidMove(source, target, board, turn) {
+
+export function isValidMove(source, target, board, turn, lastMove) {
     // Out of bounds
     if (!(0 <= source.row <= 7) ||
         !(0 <= source.col <= 7) ||
@@ -131,7 +149,7 @@ export function isValidMove(source, target, board, turn) {
     switch (sourcePiece.type) {
         case '♙':
         case '♟':
-            return isValidPawnMove(source, target, board)
+            return isValidPawnMove(source, target, board, lastMove)
 
         case '♖':
         case '♜':

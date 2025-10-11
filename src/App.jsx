@@ -12,11 +12,7 @@ const App = () => {
       <h1>Hello, World</h1>
       <p>Start building amazing things with Rsbuild.</p>
       <div className='games'>
-        <Form />
-        <ControlledForm />
-        {/* <TagInput />
-        <TicTacToe /> */}
-        <Chess />
+        <Chess color={'black'} />
       </div>
     </div>
   )
