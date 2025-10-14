@@ -220,6 +220,24 @@ function validPawnMoves(source, board, lastMove) {
 
 function validRookMoves(source, board) {
     let result = [];
+
+    // up
+    if (source.row > 0) {
+        result = [...result, ...validateRange(source, { row: 0, col: source.col }, board, -1, 0)]
+    }
+    // down
+    if (source.row < 7) {
+        result = [...result, ...validateRange(source, { row: 7, col: source.col }, board, 1, 0)]
+    }
+    // left
+    if (source.col > 0) {
+        result = [...result, ...validateRange(source, { row: source.row, col: 0 }, board, 0, -1)]
+    }
+    // right
+    if (source.col < 7) {
+        result = [...result, ...validateRange(source, { row: source.row, col: 7 }, board, 0, 1)]
+    }
+    
     return result
 }
 
