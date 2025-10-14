@@ -11,7 +11,7 @@ function validateRange(source, target, board, rowStep, colStep) {
     let result = [];
     let i = 1
 
-    for (const value of iterate(board, source, rowStep, colStep, Math.max(Math.abs(rowShift), Math.abs(colShift)))) {
+    for (const value of boardWalk(board, source, rowStep, colStep, Math.max(Math.abs(rowShift), Math.abs(colShift)))) {
         if (!value) {
             result.push({ row: source.row + rowStep * i, col: source.col + colStep * i })
         } else {
@@ -24,7 +24,7 @@ function validateRange(source, target, board, rowStep, colStep) {
     return result
 }
 
-function* iterate(board, source, rowStep, colStep, count) {
+function* boardWalk(board, source, rowStep, colStep, count) {
     let rowOffset = 0
     let colOffset = 0
 
@@ -98,7 +98,7 @@ function isValidRookMove(source, target, board) {
 
     let result = true
 
-    for (const value of iterate(board, source, rowStep, colStep, Math.max(Math.abs(rowShift), Math.abs(colShift)))) {
+    for (const value of boardWalk(board, source, rowStep, colStep, Math.max(Math.abs(rowShift), Math.abs(colShift)))) {
         if (value) {
             result = false
         }
@@ -127,7 +127,7 @@ function isValidBishopMove(source, target, board) {
 
     let result = true
 
-    for (const value of iterate(board, source, rowStep, colStep, Math.abs(rowShift))) {
+    for (const value of boardWalk(board, source, rowStep, colStep, Math.abs(rowShift))) {
         if (value) {
             result = false
             break
@@ -237,11 +237,45 @@ function validRookMoves(source, board) {
     if (source.col < 7) {
         result = [...result, ...validateRange(source, { row: source.row, col: 7 }, board, 0, 1)]
     }
-    
+
     return result
 }
 
 function validKnightMoves(source, board) {
+    const candidates = [
+        { row: source.row - 2, col: source.col - 1 },
+        { row: source.row - 2, col: source.col + 1 },
+        { row: source.row - 1, col: source.col - 2 },
+        { row: source.row - 1, col: source.col + 2 },
+        { row: source.row + 1, col: source.col - 2 },
+        { row: source.row + 1, col: source.col + 2 },
+        { row: source.row + 2, col: source.col - 1 },
+        { row: source.row + 2, col: source.col + 1 }
+    ]
+
+    const result = []
+
+    for (const candidate of candidates) {
+        console.log(typeof (candidate.col))
+        // Out of bounds
+        if (candidate.row < 0 || candidate.row > 7 ||
+            candidate.col < 0 || candidate.col > 7) {
+            console.log("out of bounds: ")
+            continue
+        }
+        
+        const targetPiece = board[candidate.row][candidate.col]
+        const sourcePiece = board[source.row][source.col]
+
+        // Can't capture own piece
+        if (targetPiece && sourcePiece && targetPiece.color === sourcePiece.color) {
+            continue
+        }
+
+        result.push(candidate)
+    }
+    return result
+
 }
 
 function validBishopMoves(source, board) {
@@ -277,26 +311,32 @@ export function validMoves(source, board, turn, lastMove) {
     switch (sourcePiece.type) {
         case '♙':
         case '♟':
+            console.log("--ValidPawnMoves\n")
             validMoveset = validPawnMoves(source, board, lastMove)
             break
         case '♖':
         case '♜':
+            console.log("--ValidRookMoves\n")
             validMoveset = validRookMoves(source, board)
             break
         case '♘':
         case '♞':
+            console.log("--ValidKnightMoves\n")
             validMoveset = validKnightMoves(source, board)
             break
         case '♗':
         case '♝':
+            console.log("--ValidBishopMoves\n")
             validMoveset = validBishopMoves(source, board)
             break
         case '♕':
         case '♛':
+            console.log("--ValidQueenMoves\n")
             validMoveset = validQueenMoves(source, board)
             break
         case '♔':
         case '♚':
+            console.log("--ValidKingMoves\n")
             validMoveset = validKingMoves(source, board)
             break
         default:
