@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { isValidMove } from './ChessLogic'
+import { isValidMove, validMoves } from './ChessLogic'
 
-function Square({ piece, color, rowIdx, colIdx, onClick, onMouseDown, onMouseUp, isSelected }) {
+function Square({ piece, color, rowIdx, colIdx, onClick, onMouseDown, onMouseUp, isSelected, isValid }) {
+    const className = `square ${color}-square ${isSelected ? 'selected-square' : ''}  ${isValid ? 'valid-square' : ''} ${piece ? piece.color === 'white' ? 'white-piece' : 'black-piece' : ''}`
     return (
-        <div className={`square ${color}-square ${isSelected ? 'selected-square' : ''} ${piece ? piece.color === 'white' ? 'white-piece' : 'black-piece' : ''}`}
+        <div className={className}
             onClick={() => onClick?.(rowIdx, colIdx)}>
             {piece ? `${piece.type}` : ''}
         </div>
@@ -27,7 +28,7 @@ function Board({ my_color }) {
 
     const [turn, setTurn] = useState('white')
     const [selectedSquare, setSelectedSquare] = useState(null)
-
+    const [validMoveList, setValidMoveList] = useState([])
     const [lastMove, setlastMove] = useState(null)
 
     const onClick = (rowIdx, colIdx) => {
@@ -59,9 +60,14 @@ function Board({ my_color }) {
                 setTurn(turn === 'white' ? 'black' : 'white')
             }
             setSelectedSquare(null)
+            setValidMoveList([])
         }
         else {
-            setSelectedSquare({ row: rowIdx, col: colIdx })
+            const newSelectedSquare = { row: rowIdx, col: colIdx }
+            const moves = validMoves(newSelectedSquare, board, turn, lastMove)
+            console.log('moves: ', moves)
+            setSelectedSquare(newSelectedSquare)
+            setValidMoveList(moves)
             setBoard([...board])
         }
     }
@@ -70,22 +76,33 @@ function Board({ my_color }) {
         return selectedSquare && selectedSquare.row === rowIdx && selectedSquare.col === colIdx
     }
 
+    const isSquareValid = (rowIdx, colIdx) => {
+        return validMoveList && validMoveList.some(move => move.row === rowIdx && move.col === colIdx)
+    }
+
+    const showValidMoves = () => { console.log("Valid moves: ", validMoveList) }
     return (
-        <div className="chess-board">
-            {board.map((row, idx) => {
-                return row.map((_, colIdx) => {
-                    return (
-                        <Square
-                            onClick={onClick}
-                            piece={row[colIdx]}
-                            color={(idx + colIdx) % 2 === 0 ? 'white' : 'black'}
-                            rowIdx={idx}
-                            colIdx={colIdx}
-                            isSelected={isSquareSelected(idx, colIdx)}
-                            key={idx * boardSize + colIdx} />
-                    )
-                })
-            })}
+        <div>
+            <div className="chess-board">
+                {board.map((row, idx) => {
+                    return row.map((_, colIdx) => {
+                        return (
+                            <Square
+                                onClick={onClick}
+                                piece={row[colIdx]}
+                                color={(idx + colIdx) % 2 === 0 ? 'white' : 'black'}
+                                rowIdx={idx}
+                                colIdx={colIdx}
+                                isSelected={isSquareSelected(idx, colIdx)}
+                                isValid={isSquareValid(idx, colIdx)}
+                                key={idx * boardSize + colIdx} />
+                        )
+                    })
+                })}
+            </div >
+            <div>
+                <button onClick={showValidMoves}>Show valid moves</button>
+            </div>
         </div>
     )
 }

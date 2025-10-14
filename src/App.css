@@ -115,6 +115,11 @@ body {
   background: green;
 }
 
+.valid-square {
+  background: rgba(17, 224, 190, 0.4) !important;
+  cursor: pointer;
+}
+
 .white-piece {
   color: rgb(152, 182, 77);
 }

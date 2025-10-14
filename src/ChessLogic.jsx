@@ -1,13 +1,13 @@
 function validateRange(source, target, board, rowStep, colStep) {
     const sourcePiece = board[source.row][source.col]
-    
+
     const rowShift = target.row - source.row
     const colShift = target.col - source.col
-    
+
     if (rowShift !== 0 && colShift !== 0) {
         return result
     }
-    
+
     let result = [];
     let i = 1
 
@@ -35,7 +35,7 @@ function* iterate(board, source, rowStep, colStep, count) {
         const element = board[source.row + rowOffset][source.col + colOffset]
         yield element
     }
-    return
+    return "Done"
 }
 
 function isValidPawnMove(source, target, board, lastMove) {
@@ -220,25 +220,6 @@ function validPawnMoves(source, board, lastMove) {
 
 function validRookMoves(source, board) {
     let result = [];
-
-    // up
-    if (source.row > 0) {
-        result = [...result, ...validateRange(source, { row: 0, col: source.col }, board, -1, 0)]
-    }
-    // down
-    if (source.row < 7) {
-        result = [...result, ...validateRange(source, { row: 7, col: source.col }, board, 1, 0)]
-    }
-    // left
-    if (source.col > 0) {
-        result = [...result, ...validateRange(source, { row: source.row, col: 0 }, board, 0, -1)]
-    }
-    // right
-    if (source.col < 7) {
-        result = [...result, ...validateRange(source, { row: source.row, col: 7 }, board, 0, 1)]
-    }
-
-    console.log("result: ", result)
     return result
 }
 
@@ -256,54 +237,54 @@ function validKingMoves(source, board) {
 
 
 export function validMoves(source, board, turn, lastMove) {
-    let result = [];
+    let validMoveset = [];
     // Out of bounds
     if (!(0 <= source.row <= 7) ||
         !(0 <= source.col <= 7)) {
-        return result
+        return validMoveset
     }
 
     const sourcePiece = board[source.row][source.col]
 
     // No piece to move
     if (!sourcePiece) {
-        return result
+        return validMoveset
     }
 
     // Not player's turn
     if (sourcePiece.color !== turn) {
-        return result
+        return validMoveset
     }
 
     switch (sourcePiece.type) {
         case '♙':
         case '♟':
-            result = validPawnMoves(source, board, lastMove)
-
+            validMoveset = validPawnMoves(source, board, lastMove)
+            break
         case '♖':
         case '♜':
-            console.log('valid rook moves')
-            result = validRookMoves(source, board)
-
+            validMoveset = validRookMoves(source, board)
+            break
         case '♘':
         case '♞':
-            result = validKnightMoves(source, board)
-
+            validMoveset = validKnightMoves(source, board)
+            break
         case '♗':
         case '♝':
-            result = validBishopMoves(source, board)
-
+            validMoveset = validBishopMoves(source, board)
+            break
         case '♕':
         case '♛':
-            result = validQueenMoves(source, board)
-
+            validMoveset = validQueenMoves(source, board)
+            break
         case '♔':
         case '♚':
-            result = validKingMoves(source, board)
-
+            validMoveset = validKingMoves(source, board)
+            break
         default:
             break;
     }
 
-    return result
+    console.log('result: ', validMoveset)
+    return validMoveset
 }
