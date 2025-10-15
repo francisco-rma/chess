@@ -4,10 +4,6 @@ function validateRange(source, target, board, rowStep, colStep) {
     const rowShift = target.row - source.row
     const colShift = target.col - source.col
 
-    if (rowShift !== 0 && colShift !== 0) {
-        return result
-    }
-
     let result = [];
     let i = 1
 
@@ -263,7 +259,7 @@ function validKnightMoves(source, board) {
             console.log("out of bounds: ")
             continue
         }
-        
+
         const targetPiece = board[candidate.row][candidate.col]
         const sourcePiece = board[source.row][source.col]
 
@@ -279,6 +275,57 @@ function validKnightMoves(source, board) {
 }
 
 function validBishopMoves(source, board) {
+    let result = [];
+
+    // up left
+    if (source.row > 0 && source.col > 0) {
+        const rowStep = -1
+        const colStep = -1
+
+        const displacement = Math.min(Math.abs(0 - source.row), Math.abs(0 - source.col))
+        const target = { row: source.row + rowStep * displacement, col: source.col + colStep * displacement }
+        console.log("up left target: ", target)
+        result = [...result, ...validateRange(source, target, board, rowStep, colStep)]
+        console.log("result: ", result)
+    }
+
+    // down left
+    if (source.row < 7 && source.col > 0) {
+        const rowStep = 1
+        const colStep = -1
+
+        const displacement = Math.min(Math.abs(-7 + source.row), Math.abs(0 - source.col))
+        const target = { row: source.row + rowStep * displacement, col: source.col + colStep * displacement }
+        console.log("down left target: ", target)
+        result = [...result, ...validateRange(source, target, board, rowStep, colStep)]
+        console.log("result: ", result)
+    }
+
+    // up right
+    if (source.row > 0 && source.col < 7) {
+        const rowStep = -1
+        const colStep = 1
+
+        const displacement = Math.min(Math.abs(0 - source.row), Math.abs(-7 + source.col))
+        const target = { row: source.row + rowStep * displacement, col: source.col + colStep * displacement }
+        console.log("up right target: ", target)
+        result = [...result, ...validateRange(source, target, board, rowStep, colStep)]
+        console.log("result: ", result)
+    }
+
+    // down right
+    if (source.row < 7 && source.col < 7) {
+        const rowStep = 1
+        const colStep = 1
+
+        const displacement = Math.min(Math.abs(-7 + source.row), Math.abs(-7 + source.col))
+        const target = { row: source.row + rowStep * displacement, col: source.col + colStep * displacement }
+        console.log("down right target: ", target)
+        result = [...result, ...validateRange(source, target, board, rowStep, colStep)]
+        console.log("result: ", result)
+    }
+
+    return result
 }
 
 function validQueenMoves(source, board) {
