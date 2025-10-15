@@ -104,11 +104,11 @@ body {
 }
 
 .white-square {
-  background: beige;
+  background: rgba(255, 255, 255, 0.993);
 }
 
 .black-square {
-  background: black;
+  background: #2e819c;
 }
 
 .selected-square {
@@ -121,11 +121,11 @@ body {
 }
 
 .white-piece {
-  color: rgb(152, 182, 77);
+  color: rgb(173, 173, 89);
 }
 
 .black-piece {
-  color: rgb(133, 79, 155);
+  color: rgb(33, 32, 34);
 }
 
 .games {
