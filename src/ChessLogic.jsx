@@ -329,6 +329,12 @@ function validBishopMoves(source, board) {
 }
 
 function validQueenMoves(source, board) {
+    let result = [];
+
+    result = [...result, ...validRookMoves(source, board)]
+    result = [...result, ...validBishopMoves(source, board)]
+
+    return result
 }
 
 function validKingMoves(source, board) {
