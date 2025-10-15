@@ -36,10 +36,16 @@ function Board({ my_color }) {
             // console.log('not your turn')
             // return;
         }
-        console.log(`${turn}(${rowIdx},${colIdx}):${board[rowIdx][colIdx]} `)
+        console.log(`Turn: ${turn}`)
         if (selectedSquare) {
+            const sourcePiece = board[selectedSquare.row][selectedSquare.col]
+            console.log('source piece: ', sourcePiece)
+            
             const target = { row: rowIdx, col: colIdx }
+            const targetPiece = board[target.row][target.col]
+            console.log('target piece: ', targetPiece)
             const isValid = isValidMove(selectedSquare, target, board, turn, lastMove)
+            console.log('isValid: ', isValid)
             if (isValid) {
                 // En passant
                 if (lastMove && target) {

@@ -92,11 +92,13 @@ function isValidRookMove(source, target, board) {
     const rowStep = rowShift === 0 ? 0 : rowShift > 0 ? 1 : -1
     const colStep = colShift === 0 ? 0 : colShift > 0 ? 1 : -1
 
+    const sourcePiece = board[source.row][source.col]
     let result = true
 
     for (const value of boardWalk(board, source, rowStep, colStep, Math.max(Math.abs(rowShift), Math.abs(colShift)))) {
         if (value) {
-            result = false
+            result = sourcePiece.color !== value.color
+            break
         }
     }
 
@@ -121,15 +123,16 @@ function isValidBishopMove(source, target, board) {
     const rowStep = rowShift > 0 ? 1 : -1
     const colStep = colShift > 0 ? 1 : -1
 
+    const sourcePiece = board[source.row][source.col]
+
     let result = true
 
     for (const value of boardWalk(board, source, rowStep, colStep, Math.abs(rowShift))) {
         if (value) {
-            result = false
+            result = sourcePiece.color !== value.color
             break
         }
     }
-
     return result
 }
 
@@ -151,6 +154,7 @@ export function isValidMove(source, target, board, turn, lastMove) {
         !(0 <= source.col <= 7) ||
         !(0 <= target.row <= 7) ||
         !(0 <= target.col <= 7)) {
+        console.log("// Out of bounds")
         return false
     }
 
@@ -159,21 +163,25 @@ export function isValidMove(source, target, board, turn, lastMove) {
 
     // No piece to move
     if (!sourcePiece) {
+        console.log("// No piece to move")
         return false
     }
 
     // Not player's turn
     if (sourcePiece.color !== turn) {
+        console.log("// Not player's turn")
         return false
     }
 
     // Can't capture own piece
     if (targetPiece && targetPiece.color === sourcePiece.color) {
+        console.log("// Can't capture own piece")
         return false
     }
 
     // No movement
     if (source.row === target.row && source.col === target.col) {
+        console.log("// No movement")
         return false
     }
 
