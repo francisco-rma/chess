@@ -234,15 +234,17 @@ function validPawnMoves(source, board, lastMove) {
         if (source.row === initialRow) {
             result.push({ row: source.row + 2 * direction, col: source.col })
         }
-
-        const lastPiece = board[lastMove.target.row][lastMove.target.col]
-        if ((lastPiece.type == '♙' || lastPiece.type == '♟')
-            && lastMove.source.col == lastMove.target.col
-            && Math.abs(lastMove.source.row - source.row) === 2
-            && Math.abs(lastMove.target.row - source.row) === 0
-            && Math.abs(lastMove.source.col - source.col) === 1
-        ) {
-            result.push({ row: source.row + direction, col: lastMove.source.col })
+        
+        // En passant
+        if (lastMove && lastMove.target) {
+            const lastPiece = board[lastMove.target.row][lastMove.target.col]
+            if ((lastPiece.type == '♙' || lastPiece.type == '♟')
+                && lastMove.source.col == lastMove.target.col
+                && Math.abs(lastMove.source.row - source.row) === 2
+                && Math.abs(lastMove.target.row - source.row) === 0
+                && Math.abs(lastMove.source.col - source.col) === 1) {
+                result.push({ row: source.row + direction, col: lastMove.source.col })
+            }
         }
     }
 
