@@ -271,7 +271,6 @@ function validKnightMoves(source, board) {
         result.push(candidate)
     }
     return result
-
 }
 
 function validBishopMoves(source, board) {
@@ -338,6 +337,38 @@ function validQueenMoves(source, board) {
 }
 
 function validKingMoves(source, board) {
+    const candidates = [
+        { row: source.row + 1, col: source.col },
+        { row: source.row - 1, col: source.col },
+        { row: source.row, col: source.col + 1 },
+        { row: source.row, col: source.col - 1 },
+        { row: source.row + 1, col: source.col + 1 },
+        { row: source.row + 1, col: source.col - 1 },
+        { row: source.row - 1, col: source.col + 1 },
+        { row: source.row - 1, col: source.col - 1 }
+    ]
+
+    const result = []
+
+    for (const candidate of candidates) {
+        console.log(typeof (candidate.col))
+        // Out of bounds
+        if (candidate.row < 0 || candidate.row > 7 ||
+            candidate.col < 0 || candidate.col > 7) {
+            continue
+        }
+
+        const targetPiece = board[candidate.row][candidate.col]
+        const sourcePiece = board[source.row][source.col]
+
+        // Can't capture own piece
+        if (targetPiece && sourcePiece && targetPiece.color === sourcePiece.color) {
+            continue
+        }
+
+        result.push(candidate)
+    }
+    return result
 }
 
 
