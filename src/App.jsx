@@ -9,8 +9,6 @@ import Chess from './Chess'
 const App = () => {
   return (
     <div className="content">
-      <h1>Hello, World</h1>
-      <p>Start building amazing things with Rsbuild.</p>
       <div className='games'>
         <Chess color={'black'} />
       </div>

@@ -3,6 +3,8 @@ body {
   color: #fff;
   font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
   background-image: linear-gradient(to bottom, #020917, #101725);
+  height: 100vh;
+  overflow: hidden;
 }
 
 .content {
@@ -90,17 +92,14 @@ body {
 .square {
   background: #475569;
   border: 1px solid #999;
-  float: left;
-  font-size: 24px;
   font-weight: bold;
-  line-height: 34px;
-  height: 34px;
-  width: 34px;
-  margin-right: -1px;
-  margin-top: -1px;
   padding: 0;
   text-align: center;
   color: brown;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: clamp(1rem, 4vmin, 2.5rem);
 }
 
 .white-square {
@@ -148,11 +147,55 @@ body {
   margin-left: 20px;
 }
 
+.board-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 2rem;
+  padding: 2rem;
+  height: 100vh;
+  box-sizing: border-box;
+}
+
 .chess-board {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   grid-template-rows: repeat(8, 1fr);
   border: 1px solid #333;
-  margin-top: 20px;
   font-size: 1.5rem;
+  width: clamp(300px, 70vmin, 800px);
+  aspect-ratio: 1 / 1;
+}
+
+.move-history {
+  width: 250px;
+  max-height: 70vmin;
+  overflow-y: auto;
+  background-color: #1e293b;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.move-history h3 {
+  margin-top: 0;
+  color: #94a3b8;
+  border-bottom: 1px solid #334155;
+  padding-bottom: 0.5rem;
+}
+
+.move-history ol {
+  list-style-type: none;
+  padding-left: 0;
+  margin: 0;
+  font-family: monospace;
+}
+
+.move-history li {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.move-history li:nth-child(odd) {
+  background-color: #334155;
 }
