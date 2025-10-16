@@ -76,7 +76,6 @@ function Game({ my_color }) {
     const [turn, setTurn] = useState('white')
     const [selectedSquare, setSelectedSquare] = useState(null)
     const [validMoveList, setValidMoveList] = useState([])
-    const [lastMove, setlastMove] = useState(null)
     const [moveList, setMovelist] = useState([])
 
     const onClick = (rowIdx, colIdx) => {
@@ -92,6 +91,11 @@ function Game({ my_color }) {
             const target = { row: rowIdx, col: colIdx }
             const targetPiece = board[target.row][target.col]
             console.log('target piece: ', targetPiece)
+
+            const lastMove = moveList[moveList.length - 1]
+            console.log('last move: ', lastMove)
+
+
             const isValid = isValidMove(selectedSquare, target, board, turn, lastMove)
             console.log('isValid: ', isValid)
             if (isValid) {
