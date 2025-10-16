@@ -40,7 +40,7 @@ function isValidPawnMove(source, target, board, lastMove) {
     const rowShift = target.row - source.row
     const colShift = Math.abs(target.col - source.col)
 
-    const direction = sourcePiece.color === 'white' ? 1 : -1
+    const direction = sourcePiece.color === 'white' ? -1 : 1
 
     // Forward movement
     if (colShift === 0 && !targetPiece) {
@@ -49,7 +49,7 @@ function isValidPawnMove(source, target, board, lastMove) {
             return true
         }
         // Move two steps forward from initial position
-        const initialRow = sourcePiece.color === 'white' ? 1 : 6
+        const initialRow = sourcePiece.color === 'white' ? 6 : 1
         if (source.row === initialRow && rowShift === 2 * direction) {
             // Check if path is clear
             return !board[source.row + direction][source.col]
@@ -221,7 +221,7 @@ export function isValidMove(source, target, board, turn, lastMove) {
 
 function validPawnMoves(source, board, lastMove) {
     const sourcePiece = board[source.row][source.col]
-    const direction = sourcePiece.color === 'white' ? 1 : -1
+    const direction = sourcePiece.color === 'white' ? -1 : 1
 
     const result = []
 
@@ -230,11 +230,11 @@ function validPawnMoves(source, board, lastMove) {
 
         result.push({ row: source.row + direction, col: source.col })
 
-        const initialRow = sourcePiece.color === 'white' ? 1 : 6
+        const initialRow = sourcePiece.color === 'white' ? 6 : 1
         if (source.row === initialRow) {
             result.push({ row: source.row + 2 * direction, col: source.col })
         }
-        
+
         // En passant
         if (lastMove && lastMove.target) {
             const lastPiece = board[lastMove.target.row][lastMove.target.col]
@@ -257,9 +257,6 @@ function validPawnMoves(source, board, lastMove) {
     if (rightTarget && rightTarget.color !== sourcePiece.color) {
         result.push({ row: source.row + direction, col: source.col + 1 })
     }
-
-
-    console.log('result: ', result)
 
     return result
 }
