@@ -92,13 +92,10 @@ function Game({ my_color }) {
             const targetPiece = board[target.row][target.col]
             console.log('target piece: ', targetPiece)
 
-            const lastMove = moveList[moveList.length - 1]
-            console.log('last move: ', lastMove)
-
-
-            const isValid = isValidMove(selectedSquare, target, board, turn, lastMove)
+            const isValid = isValidMove(selectedSquare, target, board, turn, moveList)
             console.log('isValid: ', isValid)
             if (isValid) {
+                const lastMove = moveList.length > 0 ? moveList[moveList.length - 1] : null;
                 // En passant
                 if (lastMove && target) {
                     const lastPiece = board[lastMove.target.row][lastMove.target.col]
@@ -112,9 +109,10 @@ function Game({ my_color }) {
                 }
                 board[rowIdx][colIdx] = board[selectedSquare.row][selectedSquare.col]
                 board[selectedSquare.row][selectedSquare.col] = null
+                
                 setMovelist([...moveList, { type: sourcePiece.type, source: selectedSquare, target: target }])
                 console.log('movelist: ', moveList)
-                setlastMove({ source: selectedSquare, target: target })
+                
                 setBoard([...board])
                 setTurn(turn === 'white' ? 'black' : 'white')
             }
@@ -123,7 +121,7 @@ function Game({ my_color }) {
         }
         else {
             const newSelectedSquare = { row: rowIdx, col: colIdx }
-            const moves = validMoves(newSelectedSquare, board, turn, lastMove)
+            const moves = validMoves(newSelectedSquare, board, turn, moveList)
             console.log('moves: ', moves)
             setSelectedSquare(newSelectedSquare)
             setValidMoveList(moves)
@@ -142,23 +140,31 @@ function Game({ my_color }) {
     const showValidMoves = () => { console.log("Valid moves: ", validMoveList) }
     return (
         <div className="board-container">
-            <div className="chess-board">
-                {board.map((row, idx) => {
-                    return row.map((_, colIdx) => {
-                        return (
-                            <Square
-                                onClick={onClick}
-                                piece={row[colIdx]}
-                                color={(idx + colIdx) % 2 === 0 ? 'white' : 'black'}
-                                rowIdx={idx}
-                                colIdx={colIdx}
-                                isSelected={isSquareSelected(idx, colIdx)}
-                                isValid={isSquareValid(idx, colIdx)}
-                                key={idx * boardSize + colIdx} />
-                        )
-                    })
-                })}
-            </div >
+            <div className="board-layout-container">
+                <div className="rank-labels">
+                    {Array.from(rowMapping.values()).map(label => <div key={label}>{label}</div>)}
+                </div>
+                <div className="file-labels">
+                    {Array.from(colMapping.values()).map(label => <div key={label}>{label}</div>)}
+                </div>
+                <div className="chess-board">
+                    {board.map((row, idx) => {
+                        return row.map((_, colIdx) => {
+                            return (
+                                <Square
+                                    onClick={onClick}
+                                    piece={row[colIdx]}
+                                    color={(idx + colIdx) % 2 === 0 ? 'white' : 'black'}
+                                    rowIdx={idx}
+                                    colIdx={colIdx}
+                                    isSelected={isSquareSelected(idx, colIdx)}
+                                    isValid={isSquareValid(idx, colIdx)}
+                                    key={idx * boardSize + colIdx} />
+                            )
+                        })
+                    })}
+                </div >
+            </div>
             <History moves={moveList} />
         </div>
     )

@@ -34,7 +34,8 @@ function* boardWalk(board, source, rowStep, colStep, count) {
     return "Done"
 }
 
-function isValidPawnMove(source, target, board, lastMove) {
+function isValidPawnMove(source, target, board, history) {
+    const lastMove = history.length > 0 ? history[history.length - 1] : null;
     const sourcePiece = board[source.row][source.col]
     const targetPiece = board[target.row][target.col]
     const rowShift = target.row - source.row
@@ -61,16 +62,18 @@ function isValidPawnMove(source, target, board, lastMove) {
         if (targetPiece)
             return true
         // En passant
-        console.log('checking en passant')
-        const lastPiece = board[lastMove.target.row][lastMove.target.col]
-        if ((lastPiece.type == '♙' || lastPiece.type == '♟')
-            && lastMove.source.col === target.col
-            && lastMove.target.col === target.col
-            && Math.abs(lastMove.source.row - target.row) === 1
-            && Math.abs(lastMove.target.row - target.row) === 1
-        ) {
-            console.log('en passant')
-            return true
+        if (lastMove) {
+            console.log('checking en passant')
+            const lastPiece = board[lastMove.target.row][lastMove.target.col]
+            if ((lastPiece.type == '♙' || lastPiece.type == '♟')
+                && lastMove.source.col === target.col
+                && lastMove.target.col === target.col
+                && Math.abs(lastMove.source.row - target.row) === 1
+                && Math.abs(lastMove.target.row - target.row) === 1
+            ) {
+                console.log('en passant')
+                return true
+            }
         }
         // En passant
         if (colShift === 1 && rowShift === direction && targetPiece) {
@@ -140,7 +143,7 @@ function isValidQueenMove(source, target, board) {
     return isValidRookMove(source, target, board) || isValidBishopMove(source, target, board)
 }
 
-function isValidKingMove(source, target) {
+function isValidKingMove(source, target, history) {
     const rowShift = Math.abs(target.row - source.row)
     const colShift = Math.abs(target.col - source.col)
 
@@ -148,7 +151,7 @@ function isValidKingMove(source, target) {
 }
 
 
-export function isValidMove(source, target, board, turn, lastMove) {
+export function isValidMove(source, target, board, turn, history) {
     // Out of bounds
     if (!(0 <= source.row <= 7) ||
         !(0 <= source.col <= 7) ||
@@ -188,7 +191,7 @@ export function isValidMove(source, target, board, turn, lastMove) {
     switch (sourcePiece.type) {
         case '♙':
         case '♟':
-            return isValidPawnMove(source, target, board, lastMove)
+            return isValidPawnMove(source, target, board, history)
 
         case '♖':
         case '♜':
@@ -208,7 +211,7 @@ export function isValidMove(source, target, board, turn, lastMove) {
 
         case '♔':
         case '♚':
-            return isValidKingMove(source, target, board)
+            return isValidKingMove(source, target, history)
 
         default:
             return false
@@ -219,7 +222,8 @@ export function isValidMove(source, target, board, turn, lastMove) {
 //-----------------------------------------------------------------------------------------------------------------------------//
 
 
-function validPawnMoves(source, board, lastMove) {
+function validPawnMoves(source, board, history) {
+    const lastMove = history.length > 0 ? history[history.length - 1] : null;
     const sourcePiece = board[source.row][source.col]
     const direction = sourcePiece.color === 'white' ? -1 : 1
 
@@ -419,7 +423,7 @@ function validKingMoves(source, board) {
 }
 
 
-export function validMoves(source, board, turn, lastMove) {
+export function validMoves(source, board, turn, history) {
     let validMoveset = [];
     // Out of bounds
     if (!(0 <= source.row <= 7) ||
@@ -443,7 +447,7 @@ export function validMoves(source, board, turn, lastMove) {
         case '♙':
         case '♟':
             console.log("--ValidPawnMoves\n")
-            validMoveset = validPawnMoves(source, board, lastMove)
+            validMoveset = validPawnMoves(source, board, history)
             break
         case '♖':
         case '♜':

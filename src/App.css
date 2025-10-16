@@ -166,6 +166,7 @@ body {
   font-size: 1.5rem;
   width: clamp(300px, 70vmin, 800px);
   aspect-ratio: 1 / 1;
+  grid-area: board;
 }
 
 .move-history {
@@ -198,4 +199,33 @@ body {
 
 .move-history li:nth-child(odd) {
   background-color: #334155;
+}
+
+.board-layout-container {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: 1fr auto;
+    grid-template-areas:
+        "ranks board"
+        ". files";
+    gap: 5px;
+}
+
+.rank-labels {
+    grid-area: ranks;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    color: #94a3b8;
+    font-size: 0.8rem;
+}
+
+.file-labels {
+    grid-area: files;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    color: #94a3b8;
+    font-size: 0.8rem;
 }
