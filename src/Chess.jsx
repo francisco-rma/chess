@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { isValidMove, validMoves, colMapping, rowMapping } from './ChessLogic'
+import { isValidMove, validMoves, isChecked } from './ChessLogic'
 
 const colMapping = new Map()
 colMapping.set(0, 'a')
@@ -111,7 +111,13 @@ function Game({ my_color }) {
         }
         else {
             const newSelectedSquare = { row: rowIdx, col: colIdx }
-            const moves = validMoves(newSelectedSquare, board, turn, moveHistory)
+            const moves = validMoves(newSelectedSquare, board, turn, moveHistory).filter(move => {
+                const hypotheticalBoard = JSON.parse(JSON.stringify(board))
+                hypotheticalBoard[move.row][move.col] = hypotheticalBoard[newSelectedSquare.row][newSelectedSquare.col]
+                hypotheticalBoard[newSelectedSquare.row][newSelectedSquare.col] = null
+
+                return !isChecked(hypotheticalBoard, turn, history)
+            })
 
             setSelectedSquare(newSelectedSquare)
             setValidMoveList(moves)
