@@ -1,3 +1,38 @@
+function findKing(board, color) {
+    const target = color === 'white' ? '♔' : '♚'
+    for (let row = 0; row < 8; row++) {
+        for (let col = 0; col < 8; col++) {
+            const piece = board[row][col]
+            if (piece && piece.type === target && piece.color === color) {
+                return { row, col }
+            }
+        }
+    }
+    throw new Error("King not found on the board")
+}
+
+export function isChecked(board, color, moveHistory) {
+    const kingPos = findKing(board, color)
+    const king = board[kingPos.row][kingPos.col]
+    if (!king || (king.type !== '♔' && king.type !== '♚')) {
+        return false
+    }
+
+    const boardSize = 8
+
+    for (let row = 0; row < boardSize; row++) {
+        for (let col = 0; col < boardSize; col++) {
+            const piece = board[row][col]
+            if (piece && piece.color !== color) {
+                const moves = validMoves({ row, col }, board, color === 'white' ? 'black' : 'white', moveHistory)
+                if (moves.length > 0 && moves.some(move => move.row === kingPos.row && move.col === kingPos.col)) {
+                    return true
+                }
+            }
+        }
+    }
+    return false
+}
 function validateRange(source, target, board, rowStep, colStep) {
     const sourcePiece = board[source.row][source.col]
 
@@ -63,15 +98,12 @@ function isValidPawnMove(source, target, board, history) {
             return true
         // En passant
         if (lastMove) {
-            console.log('checking en passant')
             const lastPiece = board[lastMove.target.row][lastMove.target.col]
             if ((lastPiece.type == '♙' || lastPiece.type == '♟')
                 && lastMove.source.col === target.col
                 && lastMove.target.col === target.col
                 && Math.abs(lastMove.source.row - target.row) === 1
-                && Math.abs(lastMove.target.row - target.row) === 1
-            ) {
-                console.log('en passant')
+                && Math.abs(lastMove.target.row - target.row) === 1) {
                 return true
             }
         }
@@ -151,7 +183,7 @@ function isValidKingMove(source, target, history) {
 }
 
 
-export function isValidMove(source, target, board, turn, history) {
+export function isValidMove(source, target, board, player, history) {
     // Out of bounds
     if (!(0 <= source.row <= 7) ||
         !(0 <= source.col <= 7) ||
@@ -171,7 +203,7 @@ export function isValidMove(source, target, board, turn, history) {
     }
 
     // Not player's turn
-    if (sourcePiece.color !== turn) {
+    if (sourcePiece.color !== player) {
         console.log("// Not player's turn")
         return false
     }
@@ -185,6 +217,22 @@ export function isValidMove(source, target, board, turn, history) {
     // No movement
     if (source.row === target.row && source.col === target.col) {
         console.log("// No movement")
+        return false
+    }
+
+    const currentlyInCheck = isChecked(board, player, history)
+    console.log("Currently in check: ", currentlyInCheck)
+
+    const hypotheticalBoard = JSON.parse(JSON.stringify(board))
+    hypotheticalBoard[target.row][target.col] = hypotheticalBoard[source.row][source.col]
+    hypotheticalBoard[source.row][source.col] = null
+
+    const futurelyInCheck = isChecked(hypotheticalBoard, player, history)
+    console.log("Futurely in check: ", futurelyInCheck)
+
+    if (futurelyInCheck) {
+        const msg = currentlyInCheck ? "// Must move out of check" : "// Cannot move into check"
+        console.log(msg)
         return false
     }
 
@@ -303,11 +351,9 @@ function validKnightMoves(source, board) {
     const result = []
 
     for (const candidate of candidates) {
-        console.log(typeof (candidate.col))
         // Out of bounds
         if (candidate.row < 0 || candidate.row > 7 ||
             candidate.col < 0 || candidate.col > 7) {
-            console.log("out of bounds: ")
             continue
         }
 
@@ -334,9 +380,7 @@ function validBishopMoves(source, board) {
 
         const displacement = Math.min(Math.abs(0 - source.row), Math.abs(0 - source.col))
         const target = { row: source.row + rowStep * displacement, col: source.col + colStep * displacement }
-        console.log("up left target: ", target)
         result = [...result, ...validateRange(source, target, board, rowStep, colStep)]
-        console.log("result: ", result)
     }
 
     // down left
@@ -346,9 +390,7 @@ function validBishopMoves(source, board) {
 
         const displacement = Math.min(Math.abs(-7 + source.row), Math.abs(0 - source.col))
         const target = { row: source.row + rowStep * displacement, col: source.col + colStep * displacement }
-        console.log("down left target: ", target)
         result = [...result, ...validateRange(source, target, board, rowStep, colStep)]
-        console.log("result: ", result)
     }
 
     // up right
@@ -358,9 +400,7 @@ function validBishopMoves(source, board) {
 
         const displacement = Math.min(Math.abs(0 - source.row), Math.abs(-7 + source.col))
         const target = { row: source.row + rowStep * displacement, col: source.col + colStep * displacement }
-        console.log("up right target: ", target)
         result = [...result, ...validateRange(source, target, board, rowStep, colStep)]
-        console.log("result: ", result)
     }
 
     // down right
@@ -370,9 +410,7 @@ function validBishopMoves(source, board) {
 
         const displacement = Math.min(Math.abs(-7 + source.row), Math.abs(-7 + source.col))
         const target = { row: source.row + rowStep * displacement, col: source.col + colStep * displacement }
-        console.log("down right target: ", target)
         result = [...result, ...validateRange(source, target, board, rowStep, colStep)]
-        console.log("result: ", result)
     }
 
     return result
@@ -402,7 +440,6 @@ function validKingMoves(source, board) {
     const result = []
 
     for (const candidate of candidates) {
-        console.log(typeof (candidate.col))
         // Out of bounds
         if (candidate.row < 0 || candidate.row > 7 ||
             candidate.col < 0 || candidate.col > 7) {
@@ -446,38 +483,31 @@ export function validMoves(source, board, turn, history) {
     switch (sourcePiece.type) {
         case '♙':
         case '♟':
-            console.log("--ValidPawnMoves\n")
             validMoveset = validPawnMoves(source, board, history)
             break
         case '♖':
         case '♜':
-            console.log("--ValidRookMoves\n")
             validMoveset = validRookMoves(source, board)
             break
         case '♘':
         case '♞':
-            console.log("--ValidKnightMoves\n")
             validMoveset = validKnightMoves(source, board)
             break
         case '♗':
         case '♝':
-            console.log("--ValidBishopMoves\n")
             validMoveset = validBishopMoves(source, board)
             break
         case '♕':
         case '♛':
-            console.log("--ValidQueenMoves\n")
             validMoveset = validQueenMoves(source, board)
             break
         case '♔':
         case '♚':
-            console.log("--ValidKingMoves\n")
             validMoveset = validKingMoves(source, board)
             break
         default:
             break;
     }
 
-    console.log('result: ', validMoveset)
     return validMoveset
 }

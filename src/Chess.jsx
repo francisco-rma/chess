@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { isValidMove, validMoves } from './ChessLogic'
-import { PGNtoMovelist } from './OpeningEngine'
+import { isValidMove, validMoves, colMapping, rowMapping } from './ChessLogic'
 
 const colMapping = new Map()
 colMapping.set(0, 'a')
@@ -47,7 +46,6 @@ function History({ moves }) {
     )
 }
 
-
 function Square({ piece, color, rowIdx, colIdx, onClick, onMouseDown, onMouseUp, isSelected, isValid }) {
     const className = `square ${color}-square ${isSelected ? 'selected-square' : ''}  ${isValid ? 'valid-square' : ''} ${piece ? piece.color === 'white' ? 'white-piece' : 'black-piece' : ''}`
     return (
@@ -70,32 +68,26 @@ function Game({ my_color }) {
         [{ type: '♖', color: 'white' }, { type: '♘', color: 'white' }, { type: '♗', color: 'white' }, { type: '♕', color: 'white' }, { type: '♔', color: 'white' }, { type: '♗', color: 'white' }, { type: '♘', color: 'white' }, { type: '♖', color: 'white' }]
     ]
 
-
     const boardSize = 8
     const [board, setBoard] = useState(initialBoard)
     const [turn, setTurn] = useState('white')
     const [selectedSquare, setSelectedSquare] = useState(null)
     const [validMoveList, setValidMoveList] = useState([])
-    const [moveList, setMovelist] = useState([])
+    const [moveHistory, setMoveHistory] = useState([])
 
     const onClick = (rowIdx, colIdx) => {
         if (turn !== my_color) {
             // console.log('not your turn')
             // return;
         }
-        console.log(`Turn: ${turn}`)
+
         if (selectedSquare) {
             const sourcePiece = board[selectedSquare.row][selectedSquare.col]
-            console.log('source piece: ', sourcePiece)
-
             const target = { row: rowIdx, col: colIdx }
-            const targetPiece = board[target.row][target.col]
-            console.log('target piece: ', targetPiece)
 
-            const isValid = isValidMove(selectedSquare, target, board, turn, moveList)
-            console.log('isValid: ', isValid)
+            const isValid = isValidMove(selectedSquare, target, board, turn, moveHistory)
             if (isValid) {
-                const lastMove = moveList.length > 0 ? moveList[moveList.length - 1] : null;
+                const lastMove = moveHistory.length > 0 ? moveHistory[moveHistory.length - 1] : null;
                 // En passant
                 if (lastMove && target) {
                     const lastPiece = board[lastMove.target.row][lastMove.target.col]
@@ -109,10 +101,8 @@ function Game({ my_color }) {
                 }
                 board[rowIdx][colIdx] = board[selectedSquare.row][selectedSquare.col]
                 board[selectedSquare.row][selectedSquare.col] = null
-                
-                setMovelist([...moveList, { type: sourcePiece.type, source: selectedSquare, target: target }])
-                console.log('movelist: ', moveList)
-                
+
+                setMoveHistory([...moveHistory, { type: sourcePiece.type, source: selectedSquare, target: target }])
                 setBoard([...board])
                 setTurn(turn === 'white' ? 'black' : 'white')
             }
@@ -121,8 +111,8 @@ function Game({ my_color }) {
         }
         else {
             const newSelectedSquare = { row: rowIdx, col: colIdx }
-            const moves = validMoves(newSelectedSquare, board, turn, moveList)
-            console.log('moves: ', moves)
+            const moves = validMoves(newSelectedSquare, board, turn, moveHistory)
+
             setSelectedSquare(newSelectedSquare)
             setValidMoveList(moves)
             setBoard([...board])
@@ -165,15 +155,12 @@ function Game({ my_color }) {
                     })}
                 </div >
             </div>
-            <History moves={moveList} />
+            <History moves={moveHistory} />
         </div>
     )
 }
 
 export default function Chess({ color }) {
-    console.log('my color is ' + color)
-    console.log('row mapping: ', rowMapping)
-    console.log('col mapping: ', colMapping)
     return (
         <div>
             <Game my_color={color} />
