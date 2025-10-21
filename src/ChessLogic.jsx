@@ -107,10 +107,6 @@ function isValidPawnMove(source, target, board, history) {
                 return true
             }
         }
-        // En passant
-        if (colShift === 1 && rowShift === direction && targetPiece) {
-            return true
-        }
 
         return false
     }
@@ -277,26 +273,26 @@ function validPawnMoves(source, board, history) {
 
     const result = []
 
+    const initialRow = sourcePiece.color === 'white' ? 6 : 1
+    if (source.row === initialRow && !board[source.row + 2 * direction][source.col]) {
+        result.push({ row: source.row + 2 * direction, col: source.col })
+    }
+
     const target = board[source.row + direction][source.col]
+
     if (!target) {
-
         result.push({ row: source.row + direction, col: source.col })
+    }
 
-        const initialRow = sourcePiece.color === 'white' ? 6 : 1
-        if (source.row === initialRow) {
-            result.push({ row: source.row + 2 * direction, col: source.col })
-        }
-
-        // En passant
-        if (lastMove && lastMove.target) {
-            const lastPiece = board[lastMove.target.row][lastMove.target.col]
-            if ((lastPiece.type == '♙' || lastPiece.type == '♟')
-                && lastMove.source.col == lastMove.target.col
-                && Math.abs(lastMove.source.row - source.row) === 2
-                && Math.abs(lastMove.target.row - source.row) === 0
-                && Math.abs(lastMove.source.col - source.col) === 1) {
-                result.push({ row: source.row + direction, col: lastMove.source.col })
-            }
+    // En passant
+    if (lastMove && lastMove.target) {
+        const lastPiece = board[lastMove.target.row][lastMove.target.col]
+        if ((lastPiece.type == '♙' || lastPiece.type == '♟')
+            && lastMove.source.col == target.col
+            && Math.abs(lastMove.source.row - source.row) === 2
+            && Math.abs(lastMove.target.row - source.row) === 0
+            && Math.abs(lastMove.source.col - source.col) === 1) {
+            result.push({ row: source.row + direction, col: lastMove.source.col })
         }
     }
 
