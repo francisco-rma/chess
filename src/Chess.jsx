@@ -99,6 +99,17 @@ function Game({ my_color }) {
                         board[lastMove.target.row][lastMove.target.col] = null
                     }
                 }
+
+                // Castling
+                const piece = board[selectedSquare.row][selectedSquare.col]
+                if ((piece.type === '♔' || piece.type === '♚') && Math.abs(target.col - selectedSquare.col) === 2) {
+                    const isKingside = target.col === 6
+                    const rookCol = isKingside ? 7 : 0
+                    const newRookCol = isKingside ? 5 : 3
+                    board[selectedSquare.row][newRookCol] = board[selectedSquare.row][rookCol]
+                    board[selectedSquare.row][rookCol] = null
+                }
+
                 board[rowIdx][colIdx] = board[selectedSquare.row][selectedSquare.col]
                 board[selectedSquare.row][selectedSquare.col] = null
 
@@ -116,7 +127,7 @@ function Game({ my_color }) {
                 hypotheticalBoard[move.row][move.col] = hypotheticalBoard[newSelectedSquare.row][newSelectedSquare.col]
                 hypotheticalBoard[newSelectedSquare.row][newSelectedSquare.col] = null
 
-                return !isChecked(hypotheticalBoard, turn, history)
+                return !isChecked(hypotheticalBoard, turn, moveHistory)
             })
 
             setSelectedSquare(newSelectedSquare)

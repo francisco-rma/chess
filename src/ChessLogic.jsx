@@ -24,7 +24,7 @@ export function isChecked(board, color, moveHistory) {
         for (let col = 0; col < boardSize; col++) {
             const piece = board[row][col]
             if (piece && piece.color !== color) {
-                const moves = validMoves({ row, col }, board, color === 'white' ? 'black' : 'white', moveHistory)
+                const moves = validMoves({ row, col }, board, piece.color, moveHistory)
                 if (moves.length > 0 && moves.some(move => move.row === kingPos.row && move.col === kingPos.col)) {
                     return true
                 }
@@ -171,11 +171,159 @@ function isValidQueenMove(source, target, board) {
     return isValidRookMove(source, target, board) || isValidBishopMove(source, target, board)
 }
 
-function isValidKingMove(source, target, history) {
+function isSquareAttacked(board, row, col, attackerColor) {
+    const boardSize = 8;
+
+    // Check for sliding attacks (rooks, bishops, queens)
+    const directions = [
+        { r: -1, c: 0, types: ['♖', '♜', '♕', '♛'] }, { r: 1, c: 0, types: ['♖', '♜', '♕', '♛'] },
+        { r: 0, c: -1, types: ['♖', '♜', '♕', '♛'] }, { r: 0, c: 1, types: ['♖', '♜', '♕', '♛'] },
+        { r: -1, c: -1, types: ['♗', '♝', '♕', '♛'] }, { r: -1, c: 1, types: ['♗', '♝', '♕', '♛'] },
+        { r: 1, c: -1, types: ['♗', '♝', '♕', '♛'] }, { r: 1, c: 1, types: ['♗', '♝', '♕', '♛'] }
+    ];
+
+    for (const dir of directions) {
+        for (let i = 1; i < boardSize; i++) {
+            const newRow = row + i * dir.r;
+            const newCol = col + i * dir.c;
+
+            if (newRow < 0 || newRow >= boardSize || newCol < 0 || newCol >= boardSize) {
+                break; // Off board
+            }
+
+            const piece = board[newRow][newCol];
+            if (piece) {
+                if (piece.color === attackerColor && dir.types.includes(piece.type)) {
+                    return true;
+                }
+                break; // Path is blocked by a piece
+            }
+        }
+    }
+
+    // Check for knight attacks
+    const knightMoves = [
+        { r: -2, c: -1 }, { r: -2, c: 1 }, { r: -1, c: -2 }, { r: -1, c: 2 },
+        { r: 1, c: -2 }, { r: 1, c: 2 }, { r: 2, c: -1 }, { r: 2, c: 1 }
+    ];
+    const knightTypes = ['♘', '♞'];
+    for (const move of knightMoves) {
+        const newRow = row + move.r;
+        const newCol = col + move.c;
+        if (newRow >= 0 && newRow < boardSize && newCol >= 0 && newCol < boardSize) {
+            const piece = board[newRow][newCol];
+            if (piece && piece.color === attackerColor && knightTypes.includes(piece.type)) {
+                return true;
+            }
+        }
+    }
+
+    // Check for pawn attacks
+    const pawnSourceRow = row + (attackerColor === 'white' ? 1 : -1);
+    if (pawnSourceRow >= 0 && pawnSourceRow < 8) {
+        const pawnTypes = attackerColor === 'white' ? ['♙'] : ['♟'];
+        if (col > 0) {
+            const p = board[pawnSourceRow][col - 1];
+            if (p && p.color === attackerColor && pawnTypes.includes(p.type)) return true;
+        }
+        if (col < 7) {
+            const p = board[pawnSourceRow][col + 1];
+            if (p && p.color === attackerColor && pawnTypes.includes(p.type)) return true;
+        }
+    }
+
+
+    // Check for king attacks
+    const kingTypes = ['♔', '♚'];
+    for (let r_off = -1; r_off <= 1; r_off++) {
+        for (let c_off = -1; c_off <= 1; c_off++) {
+            if (r_off === 0 && c_off === 0) continue;
+            const newRow = row + r_off;
+            const newCol = col + c_off;
+            if (newRow >= 0 && newRow < boardSize && newCol >= 0 && newCol < boardSize) {
+                const piece = board[newRow][newCol];
+                if (piece && piece.color === attackerColor && kingTypes.includes(piece.type)) {
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
+function isValidCastling(source, target, board, player, history) {
     const rowShift = Math.abs(target.row - source.row)
     const colShift = Math.abs(target.col - source.col)
 
-    return rowShift <= 1 && colShift <= 1
+    if (rowShift !== 0 || colShift !== 2) {
+        return false
+    }
+
+    const kingRow = player === 'white' ? 7 : 0;
+    if (source.row !== kingRow || source.col !== 4) {
+        return false;
+    }
+
+    // Check if king has moved
+    if (history.some(move => move.type === (player === 'white' ? '♔' : '♚'))) {
+        return false;
+    }
+
+    const isKingside = target.col === 6;
+    const rookCol = isKingside ? 7 : 0;
+    const rook = board[kingRow][rookCol];
+
+    // Check if rook is in place and is the correct type
+    if (!rook || (rook.type !== (player === 'white' ? '♖' : '♜'))) {
+        return false;
+    }
+
+    // Check if rook has moved
+    if (history.some(move => move.source.row === kingRow && move.source.col === rookCol)) {
+        return false;
+    }
+
+    // Check for pieces between king and rook
+    const pathStart = Math.min(source.col, rookCol) + 1;
+    const pathEnd = Math.max(source.col, rookCol);
+    for (let col = pathStart; col < pathEnd; col++) {
+        if (board[kingRow][col]) {
+            return false;
+        }
+    }
+
+    const opponentColor = player === 'white' ? 'black' : 'white';
+
+    // Check if king is currently in check
+    if (isSquareAttacked(board, kingRow, 4, opponentColor)) {
+        return false;
+    }
+
+    // Check if king passes through an attacked square
+    const intermediateCol = isKingside ? 5 : 3;
+    if (isSquareAttacked(board, kingRow, intermediateCol, opponentColor)) {
+        return false;
+    }
+
+    // Check if the king would castle into check
+    if (isSquareAttacked(board, kingRow, target.col, opponentColor)) {
+        return false;
+    }
+
+    return true;
+}
+
+function isValidKingMove(source, target, board, player, history) {
+    const rowShift = Math.abs(target.row - source.row)
+    const colShift = Math.abs(target.col - source.col)
+
+    if (rowShift <= 1 && colShift <= 1) {
+        return true
+    }
+
+    // Castling
+    return isValidCastling(source, target, board, player, history)
 }
 
 
@@ -255,7 +403,7 @@ export function isValidMove(source, target, board, player, history) {
 
         case '♔':
         case '♚':
-            return isValidKingMove(source, target, history)
+            return isValidKingMove(source, target, board, player, history)
 
         default:
             return false
@@ -286,9 +434,10 @@ function validPawnMoves(source, board, history) {
 
     // En passant
     if (lastMove && lastMove.target) {
+        console.log("lastMove", lastMove)
+        console.log("target", target)
         const lastPiece = board[lastMove.target.row][lastMove.target.col]
         if ((lastPiece.type == '♙' || lastPiece.type == '♟')
-            && lastMove.source.col == target.col
             && Math.abs(lastMove.source.row - source.row) === 2
             && Math.abs(lastMove.target.row - source.row) === 0
             && Math.abs(lastMove.source.col - source.col) === 1) {
@@ -421,7 +570,7 @@ function validQueenMoves(source, board) {
     return result
 }
 
-function validKingMoves(source, board) {
+function validKingMoves(source, board, player, history) {
     const candidates = [
         { row: source.row + 1, col: source.col },
         { row: source.row - 1, col: source.col },
@@ -452,6 +601,15 @@ function validKingMoves(source, board) {
 
         result.push(candidate)
     }
+
+    // Castling
+    if (isValidCastling(source, { row: source.row, col: 6 }, board, player, history)) {
+        result.push({ row: source.row, col: 6 })
+    }
+    if (isValidCastling(source, { row: source.row, col: 2 }, board, player, history)) {
+        result.push({ row: source.row, col: 2 })
+    }
+
     return result
 }
 
@@ -499,7 +657,7 @@ export function validMoves(source, board, turn, history) {
             break
         case '♔':
         case '♚':
-            validMoveset = validKingMoves(source, board)
+            validMoveset = validKingMoves(source, board, turn, history)
             break
         default:
             break;
