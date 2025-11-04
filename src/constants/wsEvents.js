@@ -1,0 +1,8 @@
+export const WS_EVENTS = {
+  JOIN_QUEUE: 1,
+  MATCH_FOUND: 2,
+  MOVE: 3,
+  GAME_OVER: 4,
+  CHAT_MESSAGE: 5,
+  OPPONENT_DISCONNECTED: 6,
+};
