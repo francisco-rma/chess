@@ -66,7 +66,7 @@ function Square({
   );
 }
 
-function Game({ my_color }) {
+function Game({ sendMessage, my_color }) {
   const initialBoard = [
     [
       { type: "♜", color: "black" },
@@ -129,6 +129,7 @@ function Game({ my_color }) {
 
     if (selectedSquare) {
       const sourcePiece = board[selectedSquare.row][selectedSquare.col];
+      const source = { row: selectedSquare.row, col: selectedSquare.col };
       const target = { row: rowIdx, col: colIdx };
 
       const isValid = isValidMove(
@@ -139,6 +140,7 @@ function Game({ my_color }) {
         moveHistory,
       );
       if (isValid) {
+        sendMessage({ source, target });
         const lastMove =
           moveHistory.length > 0 ? moveHistory[moveHistory.length - 1] : null;
         // En passant
@@ -221,6 +223,23 @@ function Game({ my_color }) {
   const isCheckMate = () =>
     validMoveList.length === 0 && isChecked(board, turn, moveHistory);
 
+  const startGame = (color) => {
+    my_color = color;
+    setTurn("white");
+    setBoard(initialBoard);
+    setSelectedSquare(null);
+    setValidMoveList([]);
+    setMoveHistory([]);
+  };
+
+  const handleMessage = (message) => {
+    switch (message) {
+      case "matched":
+        console.log("received match");
+        startGame();
+        break;
+    }
+  };
   return (
     <div className="board-container">
       <div className="board-layout-container">
@@ -261,7 +280,7 @@ function Game({ my_color }) {
 export default function Chess({ color }) {
   return (
     <div>
-      <Game my_color={color} />
+      <Game sendMessage={sendMessage} my_color={color} />
     </div>
   );
 }
