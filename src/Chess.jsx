@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { isValidMove, validMoves, isChecked } from "./ChessLogic";
+import { WS_EVENTS } from "./constants/wsEvents";
 
 const colMapping = new Map();
 colMapping.set(0, "a");
@@ -234,8 +235,14 @@ function Game({ sendMessage, my_color }) {
 
   const handleMessage = (message) => {
     switch (message) {
-      case "matched":
+      case WS_EVENTS.MATCH_FOUND:
         console.log("received match");
+        startGame();
+        break;
+      case WS_EVENTS.BOARD_UPDATE:
+        setBoard(message.payload);
+        break;
+      case WS_EVENTS.MATCH_WON || WS_EVENTS.MATCH_LOST:
         startGame();
         break;
     }

@@ -19,8 +19,10 @@ export function GameLobby() {
     sendMessage(WS_EVENTS.JOIN_QUEUE, { playerName: "Player1" });
   };
 
+  let chess = <Chess color={"white"} />;
+
   if (inGame) {
-    return <Chess color={"white"} />;
+    return chess;
   }
   return (
     <div>

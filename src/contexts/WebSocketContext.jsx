@@ -1,9 +1,8 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
-
 const WebSocketContext = createContext(null);
-const wsUri = "ws://localhost:8181/ws";
+const wsUri = "ws://localhost:8181/";
 
-export function WebSocketProvider({ children }) {
+export function WebSocketProvider({ children, messageHandler }) {
   const wsRef = useRef(null);
   const [isConnected, setIsConnected] = useState(false);
   const [lastMessage, setLastMessage] = useState(null);
@@ -20,7 +19,8 @@ export function WebSocketProvider({ children }) {
     ws.onmessage = (event) => {
       event.preventDefault();
       console.log("received message: ", event);
-      const data = JSON.parse(event.data);
+      const message = JSON.parse(event.data);
+      messageHandler(message.type, message.payload);
       setLastMessage(data);
     };
     ws.onerror = (e) => {

@@ -1,8 +1,13 @@
 export const WS_EVENTS = {
+  // client to server
   JOIN_QUEUE: 1,
-  MATCH_FOUND: 2,
+  LEAVE_QUEUE: 2,
   MOVE: 3,
-  GAME_OVER: 4,
-  CHAT_MESSAGE: 5,
-  OPPONENT_DISCONNECTED: 6,
+  OPPONENT_DISCONNECTED: 4,
+
+  // server to client
+  MATCH_FOUND: 5,
+  BOARD_UPDATE: 6,
+  MATCH_WON: 7,
+  MATCH_LOST: 8,
 };
